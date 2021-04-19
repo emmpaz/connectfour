@@ -5,17 +5,14 @@
 
 
 
-
-class cell{
-public:
-  int color;
-  int gridRow;
-  int gridCol;
-
-};
-
 class connectfour{
 public:
-  cell grid[ROWS][COLS];
+  /*
+  Each row contains 14 bits used and 2 unused
+  Each cell will contain 2 bits
+  So since 2 bits per cell and 7 columns, that's how we get 14
+  First bit will say which player, Second bit will say if that spot is used by chip
+  */
+  uint16_t grid[ROWS];
 };
 #endif
