@@ -4,7 +4,7 @@ HEADER	= connect.h
 OUT	= connectfour
 CC	 = g++
 FLAGS	 = -g -c -Wall
-LFLAGS	 = 
+LFLAGS	 = -lncurses
 
 all: $(OBJS)
 	$(CC) -g $(OBJS) -o $(OUT) $(LFLAGS)
