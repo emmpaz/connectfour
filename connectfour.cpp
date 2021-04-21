@@ -11,25 +11,25 @@ void printBoard(connectfour *c){
   for(int i = 0; i < COLS*2+1; i++){
     mvprintw(0,i,"-");
   }
-  for(int i = 0; i < ROWS; i++){
+   int row=0;
+  for(int i = 0; i < ROWS*2; i+=2){
     int col=COLS*2;
-    int row=0;
     BIT_SET(c->grid[i], 3);
     for(int j = 0; j <= 12; j+=2){
       mvprintw(i+1, col, "|");
       if(1){//replace with BIT_CHECK(c->grid[i], j)
         if(BIT_CHECK(c->grid[i], j+1)){
           attron(COLOR_PAIR(PLAYER_ONE));
-          mvprintw(row, col-1, "1");
+          mvprintw(row+1, col-1, "1");
           attroff(COLOR_PAIR(PLAYER_ONE));
         }
         else{
           attron(COLOR_PAIR(PLAYER_TWO));
-          mvprintw(row, col-1, "2");
+          mvprintw(row+1, col-1, "2");
           attroff(COLOR_PAIR(PLAYER_TWO));
         }
       }
-      mvprintw(row, col-1, "-");
+      mvprintw(row+2, col-1, "-");
       col-=2;
     }
     mvprintw(i+1, col, "|");
