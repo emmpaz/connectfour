@@ -1,21 +1,49 @@
 #include <iostream>
 #include <ncurses.h>
+#define BIT_SET(num,bit)   ((num) |=  (1<<(bit)))
+#define BIT_CLEAR(num,bit) ((num) &= ~(1<<(bit)))
+#define BIT_CHECK(num,bit) ((num) &   (1<<(bit)))
 
 #include "connectfour.h"
 
 
 void printBoard(connectfour *c){
-  for(int i = 0; i < COLS*2; i++){
-    mvprintw(3,i,"-");
+  for(int i = 0; i < COLS*2+1; i++){
+    mvprintw(0,i,"-");
   }
-  for(int i = 4; i < ROWS+4; i++){
-    for(int j = 0; j < COLS*2; j+=2){
-      mvprintw(i,j,"|");
+  for(int i = 0; i < ROWS; i++){
+    int col=COLS*2;
+    int row=0;
+    BIT_SET(c->grid[i], 3);
+    for(int j = 0; j <= 12; j+=2){
+      mvprintw(i+1, col, "|");
+      if(1){//replace with BIT_CHECK(c->grid[i], j)
+        if(BIT_CHECK(c->grid[i], j+1)){
+          attron(COLOR_PAIR(PLAYER_ONE));
+          mvprintw(row, col-1, "1");
+          attroff(COLOR_PAIR(PLAYER_ONE));
+        }
+        else{
+          attron(COLOR_PAIR(PLAYER_TWO));
+          mvprintw(row, col-1, "2");
+          attroff(COLOR_PAIR(PLAYER_TWO));
+        }
+      }
+      mvprintw(row, col-1, "-");
+      col-=2;
     }
-    mvprintw(i,COLS-1,"|");
+    mvprintw(i+1, col, "|");
+    row+=2;
   }
-  for(int i = 0; i < COLS*2; i++){
-    mvprintw(10,i,"-");
+}
+
+void testerpoints(connectfour *c){
+  for(int i = 0; i < ROWS; i++){
+    BIT_SET(c->grid[i], 0);
+    for(int j = 0; j <= 12; j+=2){
+      std::cout << bool(BIT_CHECK(c->grid[i], j)) << std::endl;
+    }
+    std::cout << "split" << std::endl;
   }
 }
 
