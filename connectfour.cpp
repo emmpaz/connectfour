@@ -3,36 +3,35 @@
 #define BIT_SET(num,bit)   ((num) |=  (1<<(bit)))
 #define BIT_CLEAR(num,bit) ((num) &= ~(1<<(bit)))
 #define BIT_CHECK(num,bit) ((num) &   (1<<(bit)))
-
+#define OFFSETR 2
+#define OFFSETC 28
 #include "connectfour.h"
 
 
-void printBoard(connectfour *c){
-  for(int i = 0; i < COLS*2+1; i++){
-    mvprintw(0,i,"-");
-  }
+void printBoard(connectfour *c){//this took longer than expected...
    int row=0;
-  for(int i = 0; i < ROWS*2; i+=2){
+   int index=0;
+  for(int i = 0; index < ROWS; i+=2,index++){
     int col=COLS*2;
-    BIT_SET(c->grid[i], 3);
+    BIT_SET(c->grid[index], 3);
     for(int j = 0; j <= 12; j+=2){
-      mvprintw(i+1, col, "|");
+      mvprintw(i+1 + OFFSETR, col + OFFSETC, "|");
       if(1){//replace with BIT_CHECK(c->grid[i], j)
-        if(BIT_CHECK(c->grid[i], j+1)){
+        if(BIT_CHECK(c->grid[index], j+1)){
           attron(COLOR_PAIR(PLAYER_ONE));
-          mvprintw(row+1, col-1, "1");
+          mvprintw(row+1 + OFFSETR, col-1 + OFFSETC, "1");
           attroff(COLOR_PAIR(PLAYER_ONE));
         }
         else{
           attron(COLOR_PAIR(PLAYER_TWO));
-          mvprintw(row+1, col-1, "2");
+          mvprintw(row+1 + OFFSETR, col-1 + OFFSETC, "2");
           attroff(COLOR_PAIR(PLAYER_TWO));
         }
       }
-      mvprintw(row+2, col-1, "-");
+      mvprintw(row+2 + OFFSETR, col-1 + OFFSETC, "-");
       col-=2;
     }
-    mvprintw(i+1, col, "|");
+    mvprintw(i+1 + OFFSETR, col + OFFSETC, "|");
     row+=2;
   }
 }
