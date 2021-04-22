@@ -49,7 +49,7 @@ void printBoardwCursor(connectfour *c, int posR, int posC){//this took longer th
   mvprintw(0, 15, "PLAYER ONE = BLUE");
   attroff(COLOR_PAIR(PLAYER_ONE));
   attron(COLOR_PAIR(PLAYER_TWO));
-  mvprintw(0, 40, "PLAYER ONE = RED");
+  mvprintw(0, 40, "PLAYER TWO = RED");
   attroff(COLOR_PAIR(PLAYER_TWO));
   if(BIT_CHECK(c->grid[1], 15)){
     attron(COLOR_PAIR(PLAYER_ONE));
@@ -70,12 +70,12 @@ void printBoardwCursor(connectfour *c, int posR, int posC){//this took longer th
       if(BIT_CHECK(c->grid[index], j)){
         if(BIT_CHECK(c->grid[index], j+1)){
           attron(COLOR_PAIR(PLAYER_ONE));
-          mvprintw(row+1 + OFFSETR, col-1 + OFFSETC, "1");
+          mvprintw(row+1 + OFFSETR, col-1 + OFFSETC, "*");
           attroff(COLOR_PAIR(PLAYER_ONE));
         }
         else{
           attron(COLOR_PAIR(PLAYER_TWO));
-          mvprintw(row+1 + OFFSETR, col-1 + OFFSETC, "2");
+          mvprintw(row+1 + OFFSETR, col-1 + OFFSETC, "*");
           attroff(COLOR_PAIR(PLAYER_TWO));
         }
       }
@@ -95,19 +95,37 @@ void initgrid(connectfour *c){
     i = 0;
   }
 }
+int drop(connectfour *c, int col){
+  int row = 0;
+  if(BIT_CHECK(c->grid[0], col)){
+    return -1;
+  }
+  else{
+    while((!BIT_CHECK(c->grid[row+1], col)) && row < 5)
+      row++;
+  }
+  BIT_SET(c->grid[row], col);
+  if(!BIT_CHECK(c->grid[1], 15))
+    BIT_SET(c->grid[row], col+1);
+  return 0;
+}
 
 void turn(connectfour *c){
-  mvprintw(10, 0, BIT_CHECK(c->grid[1], 15) ? "Player one turn": "Player two turn");
   int posR = OFFSETR;
   int posC = OFFSETC + 7;
+  int col = 6;//starting at middle colum
   while(1){
+    erase();
     printBoardwCursor(c, posR, posC);
+    mvprintw(10, 0, BIT_CHECK(c->grid[1], 15) ? "Player one turn": "Player two turn");
     int key = getch();
     if(!BIT_CHECK(c->grid[1], 15) && key == 'j'){
       erase();
       mvprintw(10, 0, BIT_CHECK(c->grid[1], 15) ? "Player one turn": "Player two turn");
-      if(posC > 30)
+      if(posC > 30){
         printBoardwCursor(c, posR, posC-=2);
+        col+=2;
+      }
       else
       {
         printBoardwCursor(c, posR, posC);
@@ -117,8 +135,10 @@ void turn(connectfour *c){
     else if(!BIT_CHECK(c->grid[1], 15) && key == 'l'){
       erase();
       mvprintw(10, 0, BIT_CHECK(c->grid[1], 15) ? "Player one turn": "Player two turn");
-      if(posC < 41)
+      if(posC < 41){
         printBoardwCursor(c, posR, posC+=2);
+        col-=2;
+      }
       else
       {
         printBoardwCursor(c, posR, posC);
@@ -127,12 +147,18 @@ void turn(connectfour *c){
     else if(!BIT_CHECK(c->grid[1], 15) && key == 'k'){
       //drop and switch turn
       BIT_SET(c->grid[1], 15);
+      drop(c, col);
+      posR = OFFSETR;
+      posC = OFFSETC + 7;
+      col = 6;
     }
     if(BIT_CHECK(c->grid[1], 15) && key == 'a'){
       erase();
       mvprintw(10, 0, BIT_CHECK(c->grid[1], 15) ? "Player one turn": "Player two turn");
-      if(posC > 30)
+      if(posC > 30){
         printBoardwCursor(c, posR, posC-=2);
+        col+=2;
+      }
       else
       {
         printBoardwCursor(c, posR, posC);
@@ -142,8 +168,10 @@ void turn(connectfour *c){
     else if(BIT_CHECK(c->grid[1], 15) && key == 'd'){
       erase();
       mvprintw(10, 0, BIT_CHECK(c->grid[1], 15) ? "Player one turn": "Player two turn");
-      if(posC < 41)
+      if(posC < 41){
         printBoardwCursor(c, posR, posC+=2);
+        col-=2;
+      }
       else
       {
         printBoardwCursor(c, posR, posC);
@@ -152,6 +180,10 @@ void turn(connectfour *c){
     else if(BIT_CHECK(c->grid[1], 15) && key == 's'){
       //drop and switch turn
       BIT_CLEAR(c->grid[1], 15);
+      drop(c, col);
+      posR = OFFSETR;
+      posC = OFFSETC + 7;
+      col = 6;
     }
     else if(key == 'q'){
       endwin();
@@ -176,7 +208,6 @@ void gameloop(connectfour *c){
     int key = getch();
     if(key == 's'){
       erase();
-      printBoard(c);
       turn(c);
     }
     else if(key == 'q'){
