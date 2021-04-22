@@ -2,8 +2,8 @@
 #define CONNECTFOUR_H
 #define ROWS 6
 #define COLS 7
-#define PLAYER_ONE 0
-#define PLAYER_TWO 1
+#define PLAYER_ONE 1
+#define PLAYER_TWO 0
 
 
 class connectfour{
