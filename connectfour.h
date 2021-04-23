@@ -4,6 +4,7 @@
 #define COLS 7
 #define PLAYER_ONE 1
 #define PLAYER_TWO 0
+#define BORDER 2
 
 
 class connectfour{

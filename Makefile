@@ -3,7 +3,7 @@ SOURCE	= connectfour.cpp
 HEADER	= connect.h
 OUT	= connectfour
 CC	 = g++
-FLAGS	 = -g -c -Wall
+FLAGS	 = -g -c -Wall --std=c++11
 LFLAGS	 = -lncurses
 
 all: $(OBJS)
