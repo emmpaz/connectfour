@@ -62,8 +62,10 @@ void printBoardwCursor(connectfour *c, int posR, int posC){//this took longer th
 }
 
 void initgrid(connectfour *c){
-  for(uint16_t i: c->grid){
-    i = 0;
+  for(int i = 0; i < ROWS; i++){
+    for(int j = 0; j < 15; j++){
+      BIT_CLEAR(c->grid[i], j);
+    }
   }
 }
 int checkwin(connectfour *c){
@@ -90,8 +92,48 @@ int checkwin(connectfour *c){
     if(connect >= 4)
       return 1;
     connect = 0;
+    h=0;
     for(int i = 1; i < ROWS - 3; i++){ //algorithm to check diagonl moving through rows(1-2, top to bottom)
       for(int j = i, k = 0; j < ROWS; k+=2, j++){
+        if(BIT_CHECK(c->grid[j], k)){
+          if(BIT_CHECK(c->grid[j], k+1)){
+            connect++;
+            if(connect >= 4)
+              return 1;
+          }
+          else
+            connect = 0;
+        }
+        else
+          connect = 0; 
+      }
+    }
+    if(connect >= 4)
+      return 1;
+    connect = 0;
+    for(int i = 12; i > 4; i-=2){ //algorithm to check diagonal moving though columns(0-3, left to right)
+      for(int j = 0, k =i; j < ROWS-h; j++, k-=2){
+        if(BIT_CHECK(c->grid[j], k)){
+          if(BIT_CHECK(c->grid[j], k+1)){
+            connect++;
+            if(connect >= 4)
+              return 1;
+          }
+          else
+            connect = 0;
+        }
+        else
+          connect = 0;
+      }
+      if(i<=10)
+        h++;
+    }
+    if(connect >= 4)
+      return 1;
+    connect = 0;
+    h =0;
+    for(int i = 1; i < ROWS - 3; i++){ //algorithm to check diagonl moving through rows(1-2, top to bottom)
+      for(int j = i, k = 12; j < ROWS; k-=2, j++){
         if(BIT_CHECK(c->grid[j], k)){
           if(BIT_CHECK(c->grid[j], k+1)){
             connect++;
@@ -165,8 +207,9 @@ int checkwin(connectfour *c){
     if(connect >= 4)
       return -1;
     connect = 0;
+    h = 0;
     for(int i = 1; i < ROWS - 3; i++){ //algorithm to check diagonl moving through rows(1-2, top to bottom)
-      for(int j = i, k = 0; j < ROWS; k+=2, j++){
+      for(int j = i, k = 12; j < ROWS; k+=2, j++){
         if(BIT_CHECK(c->grid[j], k)){
           if(!BIT_CHECK(c->grid[j], k+1)){
             connect++;
@@ -182,6 +225,48 @@ int checkwin(connectfour *c){
     }
     if(connect >= 4)
       return -1;
+    connect = 0;
+    for(int i = 12; i > 4; i-=2){ //algorithm to check diagonal moving though columns(0-3, left to right)
+      for(int j = 0, k =i; j < ROWS-h; j++, k-=2){
+        if(BIT_CHECK(c->grid[j], k)){
+          if(!BIT_CHECK(c->grid[j], k+1)){
+            connect++;
+            if(connect >= 4)
+              return 1;
+          }
+          else
+            connect = 0;
+        }
+        else
+          connect = 0;
+         //BIT_SET(c->grid[j], k);
+      }
+      if(i<=10)
+        h++;
+    }
+    if(connect >= 4)
+      return 1;
+    connect = 0;
+    h=0;
+    for(int i = 1; i < ROWS - 3; i++){ //algorithm to check diagonl moving through rows(1-2, top to bottom)
+      for(int j = i, k = 12; j < ROWS; k-=2, j++){
+        if(BIT_CHECK(c->grid[j], k)){
+          if(!BIT_CHECK(c->grid[j], k+1)){
+            connect++;
+            if(connect >= 4)
+              return 1;
+          }
+          else
+            connect = 0;
+        }
+        else
+          connect = 0;  
+        
+         //BIT_SET(c->grid[j], k);
+      }
+    }
+    if(connect >= 4)
+      return 1;
     connect = 0;
     for(int i = 0; i < COLS*2; i+=2){ //checking top to bottom all columns
       for(int j = 0; j < ROWS; j++){
@@ -330,14 +415,18 @@ void printWin(connectfour *c){
   erase();
   attron(COLOR_PAIR(BORDER));
   mvprintw(10, 28, (BIT_CHECK(c->grid[0],14)) ? "PLAYER TWO WON" : "PLAYER ONE WON");
-  mvprintw(20, 26, "PRESS ANY KEY TO EXIT");
+  mvprintw(20, 20, "PRESS ANY KEY TO EXIT OR PRESS a TO PLAY AGAIN");
   attroff(COLOR_PAIR(BORDER));
   int anykey = getch();
-  (void)anykey;
+  if(anykey == 'a'){
+    connectfour game;
+    gameloop(&game);
+  }
 }
 
 void gameloop(connectfour *c){
-  BIT_CLEAR(c->grid[ROWS-1], 15);
+  erase();
+  initgrid(c);
   initscr();
 	raw();
 	noecho();
@@ -354,6 +443,8 @@ void gameloop(connectfour *c){
     if(key == 's'){
       erase();
       turn(c);
+      //checkwin(c);
+      //printBoardwCursor(c, OFFSETR, OFFSETC+7);
     }
     else if(key == 'q'){
       endwin();
@@ -361,16 +452,14 @@ void gameloop(connectfour *c){
     }
   }
   printWin(c);
-  endwin();
 }
 
 
 int main(int argc, char *argv[]){
   connectfour game;
 
-  initgrid(&game);
-
   gameloop(&game);
+  endwin();
     
 
 

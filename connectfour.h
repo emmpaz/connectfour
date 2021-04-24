@@ -17,4 +17,6 @@ public:
   */
   uint16_t grid[ROWS];
 };
+
+void gameloop(connectfour *c);
 #endif
