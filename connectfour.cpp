@@ -232,7 +232,7 @@ int checkwin(connectfour *c){
           if(!BIT_CHECK(c->grid[j], k+1)){
             connect++;
             if(connect >= 4)
-              return 1;
+              return -1;
           }
           else
             connect = 0;
@@ -254,7 +254,7 @@ int checkwin(connectfour *c){
           if(!BIT_CHECK(c->grid[j], k+1)){
             connect++;
             if(connect >= 4)
-              return 1;
+              return -1;
           }
           else
             connect = 0;
