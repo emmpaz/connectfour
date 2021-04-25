@@ -1,30 +1,39 @@
 #include <iostream>
 #include <ncurses.h>
+#include <random>
 #define BIT_SET(num,bit)   ((num) |=  (1<<(bit)))
 #define BIT_CLEAR(num,bit) ((num) &= ~(1<<(bit)))
 #define BIT_CHECK(num,bit) ((num) &   (1<<(bit)))
 #define OFFSETR 2
-#define OFFSETC 28
+#define OFFSETC 31
 #include "connectfour.h"
 
 
 
-void printBoardwCursor(connectfour *c, int posR, int posC){//this took longer than expected...
-  attron(COLOR_PAIR(PLAYER_ONE));
-  mvprintw(0, 15, "PLAYER ONE = RED");
-  attroff(COLOR_PAIR(PLAYER_ONE));
-  attron(COLOR_PAIR(PLAYER_TWO));
-  mvprintw(0, 39, "PLAYER TWO = WHITE");
-  attroff(COLOR_PAIR(PLAYER_TWO));
-  if(BIT_CHECK(c->grid[1], 15)){
+void printBoardwCursor(connectfour *c, int posR, int posC, bool withCursor){//this took longer than expected...
+  if(withCursor){
     attron(COLOR_PAIR(PLAYER_ONE));
-    mvprintw(posR, posC, "*");
+    mvprintw(0, 24, "PLAYER ONE");
     attroff(COLOR_PAIR(PLAYER_ONE));
-  }
-  else{
     attron(COLOR_PAIR(PLAYER_TWO));
-    mvprintw(posR, posC, "*");
+    mvprintw(0, 43, "PLAYER TWO");
     attroff(COLOR_PAIR(PLAYER_TWO));
+    mvprintw(8, 1,  "PLAYER ONE CONTROLS");
+    mvprintw(10, 1, " a       s       d");
+    mvprintw(11, 1, "left | place | right");
+    mvprintw(8, 59,  "PLAYER TWO CONTROLS");
+    mvprintw(10, 59, " j       k       l");
+    mvprintw(11, 59, "left | place | right");
+    if(BIT_CHECK(c->grid[1], 15)){
+      attron(COLOR_PAIR(PLAYER_ONE));
+      mvprintw(posR, posC, "*");
+       attroff(COLOR_PAIR(PLAYER_ONE));
+    }
+    else{
+      attron(COLOR_PAIR(PLAYER_TWO));
+      mvprintw(posR, posC, "*");
+      attroff(COLOR_PAIR(PLAYER_TWO));
+    }
   }
   int row=0;
   int index=0;
@@ -61,6 +70,9 @@ void printBoardwCursor(connectfour *c, int posR, int posC){//this took longer th
   }
 }
 
+void printBoardwCursor(connectfour *c, int posR, int posC){
+  printBoardwCursor(c, posR, posC, true);
+}
 void initgrid(connectfour *c){
   for(int i = 0; i < ROWS; i++){
     for(int j = 0; j < 15; j++){
@@ -69,8 +81,8 @@ void initgrid(connectfour *c){
   }
 }
 int checkwin(connectfour *c){
-  int connect = 0;
-  int h = 0;
+  int connect = 0; //this is used to count how many in a row
+  int h = 0; //this is used when moving through the diagonals through columns because the diagonals shorten
   if(BIT_CHECK(c->grid[1], 15)){//for player 1
     for(int i = 0; i < (COLS-3)*2; i+=2){ //algorithm to check diagonal moving though columns(0-3, right to left)
       for(int j = 0, k =i; j < ROWS-h; j++, k+=2){
@@ -309,43 +321,40 @@ int checkwin(connectfour *c){
 
 int drop(connectfour *c, int col){
   int row = 0;
-  if(BIT_CHECK(c->grid[0], col)){
+  if(BIT_CHECK(c->grid[0], col)){ //if there is a chip in the first row in the specified column. Won't drop.
     return -1;
   }
   else{
-    while((!BIT_CHECK(c->grid[row+1], col)) && row < 5)
+    while((!BIT_CHECK(c->grid[row+1], col)) && row < 5) //while there is no chip in the next cell below in specified column then will keep moving down
       row++;
   }
   BIT_SET(c->grid[row], col);
-  if(BIT_CHECK(c->grid[1], 15))
+  if(BIT_CHECK(c->grid[1], 15)) //for which player the chip belongs to
     BIT_SET(c->grid[row], col+1);
   return 0;
 }
 
 void turn(connectfour *c){//player 1 will go when bit is 1 and player 2 will go when bit is 0, checking 15th bit on second row
-  int posR = OFFSETR;
-  int posC = OFFSETC + 7;
+  int posR = OFFSETR; // use for how the astrik gets printed
+  int posC = OFFSETC + 7; // same as above. + 7 to start in the middle.
   int col = 6;//starting at middle colum
   while(1){
     erase();
     printBoardwCursor(c, posR, posC);
-    mvprintw(10, 0, BIT_CHECK(c->grid[1], 15) ? "PLAYER ONE TURN": "PLAYER TWO TURN");
+    attron(COLOR_PAIR(TEXT));
+    mvprintw(16, 30, BIT_CHECK(c->grid[1], 15) ? "-PLAYER ONE TURN-": "-PLAYER TWO TURN-");
+    attroff(COLOR_PAIR(TEXT));
     int key = getch();
     if(!BIT_CHECK(c->grid[1], 15) && key == 'j'){
-      //erase();
-      //mvprintw(10, 0, BIT_CHECK(c->grid[1], 15) ? "PLAYER ONE TURN": "PLAYER TWO TURN");
-      if(posC > 30){
+      if(posC > 32){
         printBoardwCursor(c, posR, posC-=2);
         col+=2;
       }
       else
         printBoardwCursor(c, posR, posC);
-      
     }
     else if(!BIT_CHECK(c->grid[1], 15) && key == 'l'){
-      //erase();
-      //mvprintw(10, 0, BIT_CHECK(c->grid[1], 15) ? "PLAYER ONE TURN": "PLAYER TWO TURN");
-      if(posC < 41){
+      if(posC < 43){
         printBoardwCursor(c, posR, posC+=2);
         col-=2;
       }
@@ -366,12 +375,9 @@ void turn(connectfour *c){//player 1 will go when bit is 1 and player 2 will go 
         col = 6;
         BIT_SET(c->grid[1], 15);
       }
-
     }
     if(BIT_CHECK(c->grid[1], 15) && key == 'a'){
-      //erase();
-      //mvprintw(10, 0, BIT_CHECK(c->grid[1], 15) ? "PLAYER ONE TURN": "PLAYER TWO TURN");
-      if(posC > 30){
+      if(posC > 32){
         printBoardwCursor(c, posR, posC-=2);
         col+=2;
       }
@@ -379,9 +385,7 @@ void turn(connectfour *c){//player 1 will go when bit is 1 and player 2 will go 
         printBoardwCursor(c, posR, posC);
     }
     else if(BIT_CHECK(c->grid[1], 15) && key == 'd'){
-      //erase();
-      //mvprintw(10, 0, BIT_CHECK(c->grid[1], 15) ? "PLAYER ONE TURN": "PLAYER TWO TURN");
-      if(posC < 41){
+      if(posC < 43){
         printBoardwCursor(c, posR, posC+=2);
         col-=2;
       }
@@ -413,10 +417,11 @@ void turn(connectfour *c){//player 1 will go when bit is 1 and player 2 will go 
 
 void printWin(connectfour *c){
   erase();
-  attron(COLOR_PAIR(BORDER));
-  mvprintw(10, 28, (BIT_CHECK(c->grid[0],14)) ? "PLAYER TWO WON" : "PLAYER ONE WON");
-  mvprintw(20, 20, "PRESS ANY KEY TO EXIT OR PRESS a TO PLAY AGAIN");
-  attroff(COLOR_PAIR(BORDER));
+  (BIT_CHECK(c->grid[0],14)) ? attron(COLOR_PAIR(PLAYER_TWO)) : attron(COLOR_PAIR(PLAYER_ONE));
+  mvprintw(15, 31, (BIT_CHECK(c->grid[0],14)) ? "PLAYER TWO WON!" : "PLAYER ONE WON!");
+  mvprintw(0, 16, "PRESS ANY KEY TO EXIT OR PRESS a TO PLAY AGAIN");
+  (BIT_CHECK(c->grid[0],14)) ? attroff(COLOR_PAIR(PLAYER_TWO)) : attron(COLOR_PAIR(PLAYER_ONE));
+  printBoardwCursor(c, 0, 0, false);
   int anykey = getch();
   if(anykey == 'a'){
     connectfour game;
@@ -433,18 +438,24 @@ void gameloop(connectfour *c){
 	curs_set(0);
 	keypad(stdscr, TRUE);
   start_color();
-  init_pair(PLAYER_ONE, COLOR_RED, COLOR_BLACK);
+  init_pair(PLAYER_ONE, COLOR_YELLOW, COLOR_BLACK);
   init_pair(PLAYER_TWO, COLOR_MAGENTA, COLOR_BLACK);
   init_pair(BORDER, COLOR_CYAN, COLOR_BLACK);
-  mvprintw(0,25,"WELCOME TO CONNECT FOUR");
-  mvprintw(12, 28, "PRESS s TO START!");
-  while((!BIT_CHECK(c->grid[0],14)) && (!BIT_CHECK(c->grid[0],15))){
+  init_pair(TEXT, COLOR_GREEN, COLOR_BLACK);
+  attron(COLOR_PAIR(BORDER));
+  mvprintw(0,28,"WELCOME TO CONNECT FOUR");
+  mvprintw(12, 31, "PRESS s TO START!");
+  attroff(COLOR_PAIR(BORDER));
+  std::random_device rd;
+  std::mt19937 mt(rd());
+  std::uniform_int_distribution<int> start(1,2);
+  if(start(mt) % 2 == 0) //random person starts
+    BIT_SET(c->grid[1], 15);
+  while((!BIT_CHECK(c->grid[0],14)) && (!BIT_CHECK(c->grid[0],15))){ //while no one has won
     int key = getch();
     if(key == 's'){
       erase();
       turn(c);
-      //checkwin(c);
-      //printBoardwCursor(c, OFFSETR, OFFSETC+7);
     }
     else if(key == 'q'){
       endwin();
@@ -457,7 +468,7 @@ void gameloop(connectfour *c){
 
 int main(int argc, char *argv[]){
   connectfour game;
-
+  
   gameloop(&game);
   endwin();
     
