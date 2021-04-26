@@ -1,0 +1,11 @@
+04/19/2021 EP: Start working on connect 4
+
+04/20/2021 EP: Start game loop
+
+04/21/2021 EP: Get the game mostly working
+
+04/23/2021 EP CML: Fix a couple of bugs and get the diagonal connect 4 working
+
+04/25/2021 EP JDK: Fix a couple more bugs and make it look good and finish everything up
+
+04/25/2021 CML: create CHANGELOG and README
