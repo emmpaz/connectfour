@@ -12,12 +12,14 @@
 
 void printBoardwCursor(connectfour *c, int posR, int posC, bool withCursor){//this took longer than expected...
   if(withCursor){
+    attron(A_BOLD);
     attron(COLOR_PAIR(PLAYER_ONE));
     mvprintw(0, 24, "PLAYER ONE");
     attroff(COLOR_PAIR(PLAYER_ONE));
     attron(COLOR_PAIR(PLAYER_TWO));
     mvprintw(0, 43, "PLAYER TWO");
     attroff(COLOR_PAIR(PLAYER_TWO));
+    attroff(A_BOLD);
     mvprintw(8, 1,  "PLAYER ONE CONTROLS");
     mvprintw(10, 1, " a       s       d");
     mvprintw(11, 1, "left | place | right");
@@ -25,14 +27,18 @@ void printBoardwCursor(connectfour *c, int posR, int posC, bool withCursor){//th
     mvprintw(10, 59, " j       k       l");
     mvprintw(11, 59, "left | place | right");
     if(BIT_CHECK(c->grid[1], 15)){
+      attron(A_BOLD);
       attron(COLOR_PAIR(PLAYER_ONE));
       mvprintw(posR, posC, "*");
-       attroff(COLOR_PAIR(PLAYER_ONE));
+      attroff(COLOR_PAIR(PLAYER_ONE));
+      attroff(A_BOLD);
     }
     else{
+      attron(A_BOLD);
       attron(COLOR_PAIR(PLAYER_TWO));
       mvprintw(posR, posC, "*");
       attroff(COLOR_PAIR(PLAYER_TWO));
+      attroff(A_BOLD);
     }
   }
   int row=0;
@@ -417,10 +423,12 @@ void turn(connectfour *c){//player 1 will go when bit is 1 and player 2 will go 
 
 void printWin(connectfour *c){
   erase();
+  attron(A_BOLD);
   (BIT_CHECK(c->grid[0],14)) ? attron(COLOR_PAIR(PLAYER_TWO)) : attron(COLOR_PAIR(PLAYER_ONE));
   mvprintw(15, 31, (BIT_CHECK(c->grid[0],14)) ? "PLAYER TWO WON!" : "PLAYER ONE WON!");
   mvprintw(0, 16, "PRESS ANY KEY TO EXIT OR PRESS a TO PLAY AGAIN");
   (BIT_CHECK(c->grid[0],14)) ? attroff(COLOR_PAIR(PLAYER_TWO)) : attron(COLOR_PAIR(PLAYER_ONE));
+  attroff(A_BOLD);
   printBoardwCursor(c, 0, 0, false);
   int anykey = getch();
   if(anykey == 'a'){
