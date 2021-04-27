@@ -26,6 +26,7 @@ void printBoardwCursor(connectfour *c, int posR, int posC, bool withCursor){//th
     mvprintw(8, 59,  "PLAYER TWO CONTROLS");
     mvprintw(10, 59, " j       k       l");
     mvprintw(11, 59, "left | place | right");
+    mvprintw(0,0, "q to quit.");
     if(BIT_CHECK(c->grid[1], 15)){
       attron(A_BOLD);
       attron(COLOR_PAIR(PLAYER_ONE));
